@@ -58,6 +58,16 @@ nav ul {
     justify-content: center;
 }
 
+nav ul li a {
+    color: white;
+    text-decoration: none; /* Optional: to remove underline from the links */
+}
+
+nav ul li a:hover {
+    color: #f0f0f0; /* Optional: change color on hover for better user experience */
+}
+
+
 nav li {
     margin-right: 20px;
 }
