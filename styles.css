@@ -1,0 +1,144 @@
+/* Default Dark Mode (Hacker Theme) */
+body {
+    font-family: 'Courier New', Courier, monospace;
+    background-color: #00FF00;  /* Green background for dark mode */
+    color: #FFFFFF;  /* White text for dark mode */
+    margin: 0;
+    padding: 0;
+    transition: background-color 0.5s, color 0.5s;
+}
+
+/* Light Mode (Override Dark Mode) */
+body.light-mode {
+    background-color: #ffffff;  /* White background for light mode */
+    color: #000000;  /* Black text for light mode */
+}
+
+/* Header styles */
+header {
+    background-color: #000000;
+    padding: 1em;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+}
+
+/* Style for the header "Resume" text */
+.header-text h1 {
+    color: #FFFFFF;  /* White color for dark mode */
+    text-align: center;  /* Center align the text */
+    font-size: 2em;  /* Adjust the font size if needed */
+    margin: 0;  /* Remove extra margin */
+    padding: 10px 0;  /* Adjust padding for spacing */
+}
+
+/* Light Mode: Change "Resume" text to black */
+body.light-mode .header-text h1 {
+    color: #000000;  /* Black color for light mode */
+}
+
+/* Default Dark Mode (Hacker Theme) */
+body {
+    font-family: 'Courier New', Courier, monospace;
+    background-color: #00FF00;  /* Green background for dark mode */
+    color: #FFFFFF;  /* White text for dark mode */
+    margin: 0;
+    padding: 0;
+    transition: background-color 0.5s, color 0.5s;
+}
+
+/* Light Mode (Override Dark Mode) */
+body.light-mode {
+    background-color: #ffffff;  /* White background for light mode */
+    color: #000000;  /* Black text for light mode */
+}
+
+/* Navigation links */
+nav ul {
+    list-style: none;
+    display: flex;
+    justify-content: center;
+}
+
+nav li {
+    margin-right: 20px;
+}
+
+nav a {
+    color: #000000;  /* Black text for both modes */
+    text-decoration: none;
+    font-weight: bold;
+    transition: color 0.3s;
+}
+
+nav a:hover {
+    color: #333333;  /* Slightly darker hover */
+}
+
+/* Toggle Button */
+#mode-toggle {
+    background-color: #000000;
+    color: #00FF00;
+    border: 2px solid #00FF00;
+    padding: 5px 10px;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+#mode-toggle:hover {
+    background-color: #333333;
+}
+
+/* Main content styles */
+main {
+    padding: 2em;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+/* Section styles */
+section {
+    margin-bottom: 40px;
+    background-color: #000000;  /* Default background for dark mode */
+    padding: 20px;
+    border-radius: 10px;
+    border: 1px solid #00FF00;  /* Green border */
+    transition: background-color 0.5s, color 0.5s;
+}
+
+/* Light mode section styles */
+body.light-mode section {
+    background-color: #ffffff;
+    border-color: #000000;
+}
+
+/* Profile Image and Text Alignment */
+#about {
+    display: flex;
+    align-items: center;
+}
+
+#about img {
+    margin-right: 20px;
+    width: 2in;
+    height: 2in;
+    border-radius: 50%;
+    border: 2px solid #000000;  /* Black border */
+}
+
+/* Headings in dark mode */
+h1, h2, h3 {
+    color: #FFFFFF;  /* White text for dark mode */
+}
+
+/* Light mode headings */
+body.light-mode h1, body.light-mode h2, body.light-mode h3 {
+    color: #000000;
+}
+
+/* White text in dark mode */
+body:not(.light-mode) p {
+    color: #FFFFFF;
+}
+
+body.light-mode p {
+    color: #000000;
+}
