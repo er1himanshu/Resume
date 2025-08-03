@@ -4,9 +4,9 @@ function toggleDarkMode() {
 
     const modeText = document.getElementById("mode-text");
     if (body.classList.contains("light-mode")) {
-        modeText.textContent = "Switch to Dark Mode";  
+        modeText.textContent = "Switch to Dark Mode";
     } else {
-        modeText.textContent = "Switch to Light Mode";  
+        modeText.textContent = "Switch to Light Mode";
     }
 }
 
