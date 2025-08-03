@@ -144,32 +144,32 @@ li {
     margin-bottom: 20px;
 }
 
-/* Dark Mode Toggle Button */
 #mode-toggle {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    padding: 10px 15px;
-    background-color: #333;
-    color: #fff;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    padding: 5px 10px;
+    font-size: 1.1em;
+    background-color: transparent;
+    color: #333;
     border: none;
-    border-radius: 5px;
     cursor: pointer;
-    font-size: 0.9em;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-    transition: background-color 0.3s, color 0.3s;
     z-index: 1000;
+    transition: color 0.3s;
 }
 
 #mode-toggle:hover {
-    background-color: #444;
+    color: #666;
 }
 
 body.dark-mode #mode-toggle {
-    background-color: #f4f4f4;
-    color: #333;
+    color: #f4f4f4;
 }
 
 body.dark-mode #mode-toggle:hover {
-    background-color: #e0e0e0;
+    color: #ddd;
+}
+
+.resume-header {
+    position: relative;
 }
