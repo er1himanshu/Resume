@@ -3,412 +3,409 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Himanshu Soni — Futuristic CV</title>
+  <title>Himanshu Soni — Holographic CV Interface</title>
 
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;800&family=Roboto:wght@300;400&display=swap" rel="stylesheet">
 
   <style>
     :root{
-      --bg-dark:#060608;
-      --panel: rgba(255,255,255,0.04);
+      --bg-dark:#04060c;
+      --panel-bg: rgba(10, 22, 49, 0.4);
       --accent-cyan: #00f0ff;
       --accent-pink: #ff3bd6;
-      --muted: rgba(255,255,255,0.7);
-      --glass-border: rgba(255,255,255,0.08);
-      --glass-blur: 10px;
+      --accent-purple: #9250ff;
+      --text-light: #e6f1ff;
+      --text-muted: rgba(220, 220, 255, 0.6);
+      --glass-border: rgba(0, 240, 255, 0.2);
+      --glow: 0 0 20px rgba(0, 240, 255, 0.3);
     }
 
+    /* --- SETUP & BASE --- */
     *{box-sizing:border-box}
     html,body{height:100%}
     body{
       margin:0;
-      font-family: "Orbitron", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      font-family: "Roboto", sans-serif;
       background:var(--bg-dark);
-      color:#fff;
+      color:var(--text-light);
       -webkit-font-smoothing:antialiased;
       -moz-osx-font-smoothing:grayscale;
       overflow-y:auto;
+      cursor: none;
+    }
+    .futuristic-font { font-family: "Orbitron", sans-serif; }
+
+    /* --- DYNAMIC BACKGROUND LAYERS --- */
+    .background-layers {
+        position: fixed;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 0;
+        pointer-events: none;
+    }
+    #bg-canvas {
+        position: absolute; inset: 0; z-index: 1;
+        background: radial-gradient(ellipse at 50% 50%, rgba(4,6,12,0.1) 0%, var(--bg-dark) 80%);
+    }
+    .aurora {
+        position: absolute; inset: 0; z-index: 0;
+        background: radial-gradient(ellipse at 70% 30%, var(--accent-cyan), transparent 60%),
+                    radial-gradient(ellipse at 30% 70%, var(--accent-pink), transparent 60%);
+        opacity: 0.15;
+        animation: aurora-flow 30s infinite alternate ease-in-out;
+    }
+    @keyframes aurora-flow {
+        from { transform: rotate(0deg) scale(1.5); }
+        to { transform: rotate(360deg) scale(2.2); }
+    }
+    .scanline {
+        position: absolute; inset: 0; z-index: 2;
+        background: repeating-linear-gradient(0deg, rgba(0,0,0,0) 0px, rgba(0,0,0,0) 2px, rgba(0,240,255,0.03) 3px, rgba(0,240,255,0.03) 4px);
+    }
+    
+    /* --- CUSTOM CURSOR --- */
+    .cursor, .cursor-follower {
+        position: fixed;
+        top: 0; left: 0;
+        pointer-events: none;
+        z-index: 9999;
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+    }
+    .cursor {
+        width: 8px; height: 8px;
+        background-color: var(--accent-cyan);
+        transition: transform 0.1s ease;
+    }
+    .cursor-follower {
+        width: 30px; height: 30px;
+        border: 1px solid var(--accent-cyan);
+        opacity: 0.5;
+        transition: transform 0.3s ease-out, opacity 0.3s;
+    }
+    body:hover .cursor { opacity: 1; }
+    .cursor-grow { transform: translate(-50%, -50%) scale(2.5); opacity: 0; }
+
+    /* --- LAYOUT & MAIN WRAPPER --- */
+    .wrap{
+        position:relative; z-index:1; 
+        max-width:900px; margin:0 auto; 
+        padding:2rem 1rem;
+    }
+    
+    /* --- HEADER --- */
+    header{ text-align:center; padding: 4rem 1rem 3rem; }
+    header h1{
+      margin:0; font-size:clamp(2.5rem, 6vw, 4rem); 
+      letter-spacing:1px;
+      background: linear-gradient(90deg,var(--accent-cyan),var(--accent-pink));
+      -webkit-background-clip: text; background-clip:text; color:transparent;
+      text-shadow: 0 0 18px rgba(0,240,255,0.2), 0 0 30px rgba(255,59,214,0.1);
+      opacity: 0; animation: fadeIn 1s 0.5s forwards;
+    }
+    header p{ 
+        margin:0.5rem 0 0; color:var(--text-muted); font-size:1.1rem;
+        opacity: 0; animation: fadeIn 1s 0.8s forwards;
     }
 
-    /* canvas sits below everything */
-    canvas#bg {
-      position: fixed;
-      inset:0;
-      width:100%;
-      height:100%;
-      z-index:0;
-      pointer-events:none;
-      background: linear-gradient(180deg, rgba(0,0,0,0.92) 0%, rgba(6,6,10,0.95) 100%);
-    }
-
-    /* page layout */
-    .wrap{position:relative; z-index:1; max-width:1100px; margin:0 auto; padding:18px;}
-    nav{
-      position:sticky; top:12px; z-index:5;
-      display:flex; justify-content:center; padding:8px 12px;
-      backdrop-filter: blur(8px) saturate(120%); background: rgba(0,0,0,0.35);
-      border:1px solid rgba(255,255,255,0.06); border-radius:999px; margin-bottom:18px;
-    }
-    nav a{
-      color:var(--accent-cyan); text-decoration:none; padding:8px 14px; margin:0 6px; border-radius:999px;
-      border:1px solid rgba(255,255,255,0.06); font-weight:600; font-size:0.95rem;
-    }
-    nav a:hover{ color:var(--accent-pink); box-shadow: 0 8px 30px rgba(255,0,255,0.06); transform:translateY(-1px) }
-
-    header{ text-align:center; padding:56px 12px 28px; margin-top:4px}
-    header h1{ margin:0; font-size:clamp(28px,6vw,48px); letter-spacing:0.6px;
-              background: linear-gradient(90deg,var(--accent-cyan),var(--accent-pink));
-              -webkit-background-clip: text; background-clip:text; color:transparent;
-              text-shadow: 0 0 18px rgba(0,240,255,0.12), 0 0 30px rgba(255,59,214,0.06);}
-    header p{ margin:8px 0 0; color:var(--muted); font-size:1rem; }
-
-    .grid{
-      display:grid;
-      grid-template-columns: 1fr 360px;
-      gap:24px;
-      align-items:start;
-      margin-top:28px;
-    }
-
-    @media (max-width:980px){
-      .grid{ grid-template-columns: 1fr; padding:0 10px }
-    }
-
+    /* --- PANELS & SECTIONS (CORE UI) --- */
     .panel{
-      background:var(--panel);
+      background:var(--panel-bg);
       border:1px solid var(--glass-border);
-      border-radius:14px;
-      padding:20px;
-      backdrop-filter: blur(var(--glass-blur));
-      box-shadow: 0 8px 30px rgba(0,0,0,0.6);
+      border-radius:16px;
+      padding:1.5rem;
+      backdrop-filter: blur(12px) saturate(120%);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.7);
+      margin-bottom: 2rem;
+      /* On-scroll animation setup */
+      opacity: 0; transform: translateY(30px);
+      transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+    }
+    .panel.is-visible { opacity: 1; transform: translateY(0); }
+    .panel:hover {
+        border-color: rgba(0,240,255,0.4);
+        box-shadow: 0 12px 40px rgba(0,0,0,0.7), var(--glow);
+    }
+    
+    .section-title{
+        display:flex; align-items:center; gap:0.75rem;
+        margin-bottom:1rem; color:var(--accent-cyan);
+    }
+    .section-title h2{ margin:0; font-size:1.25rem; }
+    
+    /* --- CONTENT STYLES --- */
+    .about-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 1rem; }
+    @media (max-width: 768px) { .about-grid { grid-template-columns: 1fr; } }
+    .about-grid p{ color:var(--text-muted); line-height:1.6; margin:0; }
+
+    .skills-grid{ display: flex; flex-wrap: wrap; gap: 0.5rem; }
+    .skills-grid .badge {
+      padding: 0.5rem 1rem; border-radius: 6px; font-weight: 500; font-size: 0.9rem;
+      background: rgba(0, 240, 255, 0.1); color: var(--accent-cyan);
+      border: 1px solid rgba(0, 240, 255, 0.2);
     }
 
-    .section-title{ display:flex; align-items:center; gap:8px; margin-bottom:12px; }
-    .section-title h2{ margin:0; font-size:1.1rem; color:var(--accent-cyan) }
+    .timeline{ display:flex; flex-direction:column; gap:1rem }
+    .job{ padding:1rem; border-radius:10px; background: rgba(255,255,255,0.03); }
+    .job h3{ margin:0; font-size:1rem; color: var(--text-light); }
+    .job .meta{ color:var(--text-muted); font-size:0.9rem; margin-top:0.25rem; font-weight: 300; }
+    .job ul{ margin:0.75rem 0 0 1rem; color:var(--text-muted); line-height:1.5 }
 
-    .about p{ color:var(--muted); line-height:1.5; margin:0 }
+    .projects-grid{ display:grid; grid-template-columns:1fr 1fr; gap:1rem }
+    @media (max-width: 640px) { .projects-grid{ grid-template-columns:1fr } }
+    .project{ padding:1rem; border-radius:10px; background:rgba(255,255,255,0.03); }
+    .project .stack{ margin-top:0.5rem; display:flex; gap:0.5rem; flex-wrap:wrap }
+    .project .stack .s{ font-size:0.75rem; padding:0.25rem 0.5rem; border-radius:4px; background:rgba(255,255,255,0.05); color:var(--text-muted) }
 
-    .skill-badges{ display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; }
-    .skill-badges .badge{
-      padding:8px 12px; border-radius:999px; font-weight:700; font-size:0.9rem;
-      background: linear-gradient(90deg,var(--accent-cyan), var(--accent-pink));
-      color:#000; box-shadow:0 6px 20px rgba(0,240,255,0.06)
+    .contact-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
+    .contact-item { text-align: center; }
+    .contact-item a {
+        color: var(--accent-cyan); text-decoration: none; font-weight: 500;
+        display: block; padding: 1rem; background: rgba(255,255,255,0.03); border-radius: 10px;
+        transition: background 0.3s, color 0.3s;
     }
+    .contact-item a:hover { background: var(--accent-cyan); color: var(--bg-dark); }
+    
+    footer{ text-align:center; padding: 2rem 0 4rem; color:rgba(255,255,255,0.4); }
 
-    .timeline{ display:flex; flex-direction:column; gap:12px }
-    .job{ padding:12px; border-radius:10px; background: rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.03) }
-    .job h3{ margin:0; font-size:1rem }
-    .job .meta{ color:var(--muted); font-size:0.9rem; margin-top:6px }
-    .job ul{ margin:8px 0 0 18px; color:var(--muted); line-height:1.45 }
-
-    .projects-grid{ display:grid; grid-template-columns:1fr 1fr; gap:12px }
-    @media (max-width:640px){ .projects-grid{ grid-template-columns:1fr } }
-
-    .project{ padding:12px; border-radius:10px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.03) }
-    .project .stack{ margin-top:8px; display:flex; gap:6px; flex-wrap:wrap }
-    .project .stack .s{ font-size:0.75rem; padding:6px 8px; border-radius:999px; background:rgba(255,255,255,0.03); color:var(--muted) }
-
-    .contact-list{ display:flex; flex-direction:column; gap:6px; color:var(--muted) }
-    .contact-list a{ color:var(--accent-cyan); text-decoration:none; font-weight:700 }
-
-    footer{ text-align:center; margin:36px 0 80px; color:var(--muted) }
-
-    /* printable CV */
-    @media print{
-      nav, footer, .bg-controls { display:none }
-      body{ background:#fff; color:#000 }
-      canvas#bg{ display:none }
-      .wrap{ max-width:780px; margin:0 auto }
-      .panel{ background:transparent; border:none; box-shadow:none; padding:0 }
-    }
+    /* --- ANIMATIONS --- */
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
   </style>
 </head>
 <body>
-  <canvas id="bg" aria-hidden="true"></canvas>
+  <div class="background-layers">
+    <canvas id="bg-canvas" aria-hidden="true"></canvas>
+    <div class="aurora"></div>
+    <div class="scanline"></div>
+  </div>
+  <div class="cursor"></div>
+  <div class="cursor-follower"></div>
 
   <div class="wrap">
-    <nav>
-      <a href="#about">About</a>
-      <a href="#experience">Experience</a>
-      <a href="#projects">Projects</a>
-      <a href="#skills">Skills</a>
-      <a href="#contact">Contact</a>
-      <a href="https://er1himanshu.github.io/Resume" target="_blank" rel="noreferrer">Download CV</a>
-    </nav>
-
     <header>
-      <h1>Himanshu Soni</h1>
-      <p>M.Tech CSE @ VIT — Full-Stack & AI Enthusiast • Vellore, India</p>
+      <h1 class="futuristic-font" data-decode-text="Himanshu Soni">Himanshu Soni</h1>
+      <p>M.Tech CSE @ VIT — Full-Stack Architect & AI Engineer • Vellore, India</p>
     </header>
 
-    <main class="grid" role="main">
-      <!-- left: content -->
-      <div>
-        <section id="about" class="panel about">
-          <div class="section-title"><h2>About</h2></div>
-          <p>I'm a passionate student exploring AI, web development, and futuristic technologies. I build full-stack applications, experiment with ML models, and design user-first interfaces. Currently pursuing M.Tech (CSE) at VIT with research focus on AI & distributed systems.</p>
-        </section>
-
-        <section id="experience" class="panel" style="margin-top:18px">
-          <div class="section-title"><h2>Experience</h2></div>
-          <div class="timeline">
-            <div class="job">
-              <h3>Java Full Stack Developer (Remote) — Zidio Development</h3>
-              <div class="meta">Apr 2024 – Jun 2024 • Java, Spring Boot, MySQL, React</div>
-              <ul>
-                <li>Built REST APIs in Spring Boot for auth, postings & admin.</li>
-                <li>Optimized MySQL schema; integrated React frontend.</li>
-                <li>Worked in Agile with Trello & Postman.</li>
-              </ul>
-            </div>
-
-            <div class="job">
-              <h3>Big Data Intern (Remote) — Physics Wallah Pvt. Ltd.</h3>
-              <div class="meta">Sep 2024 – Dec 2024 • Hadoop, Hive</div>
-              <ul>
-                <li>Analytics using HDFS, MapReduce & Hive for large-scale processing.</li>
-              </ul>
-            </div>
-
-            <div class="job">
-              <h3>Salesforce Developer Intern (Remote) — Neeevas</h3>
-              <div class="meta">Aug 2024 – Sep 2024</div>
-              <ul>
-                <li>Built CRM customizations and integrations.</li>
-              </ul>
-            </div>
-          </div>
-        </section>
-
-        <section id="projects" class="panel" style="margin-top:18px">
-          <div class="section-title"><h2>Projects</h2></div>
-
-          <div class="projects-grid">
-            <div class="project">
-              <strong>E-Commerce Website</strong>
-              <div class="stack"><span class="s">Python</span><span class="s">Django</span><span class="s">HTML</span></div>
-              <p style="color:var(--muted);margin:8px 0 0">Full-stack store with auth, cart, and payment integration.</p>
-            </div>
-
-            <div class="project">
-              <strong>Book Review System</strong>
-              <div class="stack"><span class="s">Django</span><span class="s">React</span><span class="s">PostgreSQL</span></div>
-              <p style="color:var(--muted);margin:8px 0 0">Ratings, reviews, auth, and responsive UI.</p>
-            </div>
-
-            <div class="project">
-              <strong>Emotion-Based Music Recommender</strong>
-              <div class="stack"><span class="s">Python</span><span class="s">ML</span></div>
-              <p style="color:var(--muted);margin:8px 0 0">Recommends songs based on detected emotion.</p>
-            </div>
-
-            <div class="project">
-              <strong>Weather Forecast App</strong>
-              <div class="stack"><span class="s">Java</span><span class="s">OpenWeather API</span></div>
-              <p style="color:var(--muted);margin:8px 0 0">Console app fetching real-time weather data.</p>
-            </div>
-          </div>
-        </section>
-
-        <section id="skills" class="panel" style="margin-top:18px">
-          <div class="section-title"><h2>Skills & Tools</h2></div>
-          <div class="skill-badges">
-            <div class="badge">Java</div>
-            <div class="badge">JavaScript</div>
-            <div class="badge">Python</div>
-            <div class="badge">React</div>
-            <div class="badge">Django</div>
-            <div class="badge">MySQL</div>
-            <div class="badge">GCP</div>
-            <div class="badge">Git</div>
-          </div>
-          <div style="margin-top:12px;color:var(--muted);font-size:0.95rem">Soft skills: Problem-solving • Teamwork • Analytical • Adaptability</div>
-        </section>
-      </div>
-
-      <!-- right: sidebar -->
-      <aside>
-        <div class="panel">
-          <div style="display:flex; gap:12px; align-items:center;">
-            <div style="width:76px; height:76px; border-radius:12px; background:linear-gradient(90deg,var(--accent-cyan),var(--accent-pink)); display:flex; align-items:center; justify-content:center; font-weight:700; color:#000; font-size:20px">HS</div>
+    <main role="main">
+      <section id="profile" class="panel about">
+        <div class="about-grid">
             <div>
-              <div style="font-weight:800; font-size:1.05rem">Himanshu Soni</div>
-              <div style="color:var(--muted); font-size:0.9rem; margin-top:6px">M.Tech CSE • VIT</div>
+                <div class="section-title futuristic-font"><h2>STATUS REPORT</h2></div>
+                <p>A highly motivated M.Tech candidate with a passion for architecting intelligent, scalable systems. My work focuses on the intersection of robust backend engineering and cutting-edge artificial intelligence. I build high-performance applications, experiment with predictive models, and design user-centric digital experiences.</p>
             </div>
+            <div>
+                <div class="section-title futuristic-font"><h2>CONTACT</h2></div>
+                <div class="contact-grid">
+                    <div class="contact-item"><a href="mailto:er.himanshusoni.cse@gmail.com">Email</a></div>
+                    <div class="contact-item"><a href="tel:+916387446090">Phone</a></div>
+                    <div class="contact-item"><a href="https://github.com/er1himanshu" target="_blank">GitHub</a></div>
+                    <div class="contact-item"><a href="https://er1himanshu.github.io/Resume" target="_blank">Résumé</a></div>
+                </div>
+            </div>
+        </div>
+      </section>
+
+      <section id="experience" class="panel">
+        <div class="section-title futuristic-font"><h2>CAREER TIMELINE</h2></div>
+        <div class="timeline">
+          <div class="job">
+            <h3 class="futuristic-font">Java Full Stack Developer — Zidio Development</h3>
+            <div class="meta">REMOTE • Apr 2024 – Jun 2024</div>
+            <ul>
+              <li>Engineered RESTful APIs using Spring Boot for core application logic including authentication and data management.</li>
+              <li>Designed and optimized MySQL database schemas for performance and scalability.</li>
+              <li>Integrated backend services with a dynamic React.js frontend interface.</li>
+            </ul>
           </div>
 
-          <hr style="border:none; height:1px; background:rgba(255,255,255,0.04); margin:12px 0" />
-
-          <div class="contact-list">
-            <div>Email: <a href="mailto:er.himanshusoni.cse@gmail.com">er.himanshusoni.cse@gmail.com</a></div>
-            <div>Phone: <a href="tel:+916387446090">+91 6387446090</a></div>
-            <div>GitHub: <a href="https://github.com/er1himanshu" target="_blank" rel="noreferrer">er1himanshu</a></div>
-            <div>Website: <a href="https://himanshusoni.engineer" target="_blank" rel="noreferrer">himanshusoni.engineer</a></div>
-          </div>
-
-          <hr style="border:none; height:1px; background:rgba(255,255,255,0.04); margin:12px 0" />
-
-          <div>
-            <div style="font-weight:700; color:var(--muted); font-size:0.95rem">Certifications</div>
-            <ul style="color:var(--muted); margin:8px 0 0 18px">
-              <li>NEC Finalist, E-Cell IIT Bombay (Feb 2022)</li>
-              <li>AWS S3, Coursera (Mar 2022)</li>
-              <li>CCNAv7, Cisco (Sep 2021)</li>
+          <div class="job">
+            <h3 class="futuristic-font">Big Data Intern — Physics Wallah Pvt. Ltd.</h3>
+            <div class="meta">REMOTE • Sep 2024 – Dec 2024</div>
+            <ul>
+              <li>Processed and analyzed massive datasets utilizing the Hadoop ecosystem (HDFS, MapReduce).</li>
+              <li>Executed complex data queries and built analytics dashboards using Hive.</li>
             </ul>
           </div>
         </div>
+      </section>
 
-        <div class="panel" style="margin-top:14px; text-align:center">
-          <div style="font-weight:800">Looking for collaborations?</div>
-          <div style="color:var(--muted); margin-top:8px">Open to internships & projects in AI / Web dev.</div>
-          <div style="margin-top:12px">
-            <a href="mailto:er.himanshusoni.cse@gmail.com" style="background:linear-gradient(90deg,var(--accent-cyan),var(--accent-pink)); color:#000; padding:10px 12px; border-radius:10px; text-decoration:none; font-weight:800">Get in touch</a>
+      <section id="projects" class="panel">
+        <div class="section-title futuristic-font"><h2>PROJECT ARCHIVES</h2></div>
+        <div class="projects-grid">
+          <div class="project">
+            <strong class="futuristic-font">E-Commerce Platform</strong>
+            <div class="stack"><span class="s">Python</span><span class="s">Django</span><span class="s">SQL</span></div>
+            <p style="color:var(--text-muted);margin:8px 0 0">Full-stack store with auth, cart, and payment gateway integration.</p>
+          </div>
+          <div class="project">
+            <strong class="futuristic-font">Book Review System</strong>
+            <div class="stack"><span class="s">Django</span><span class="s">React</span><span class="s">PostgreSQL</span></div>
+            <p style="color:var(--text-muted);margin:8px 0 0">Decoupled platform for ratings and reviews with a responsive UI.</p>
+          </div>
+          <div class="project">
+            <strong class="futuristic-font">Emotion-Based Music AI</strong>
+            <div class="stack"><span class="s">Python</span><span class="s">TensorFlow</span><span class="s">OpenCV</span></div>
+            <p style="color:var(--text-muted);margin:8px 0 0">ML model recommends songs based on real-time facial emotion.</p>
+          </div>
+          <div class="project">
+            <strong class="futuristic-font">Weather Forecast CLI</strong>
+            <div class="stack"><span class="s">Java</span><span class="s">API</span></div>
+            <p style="color:var(--text-muted);margin:8px 0 0">Console application fetching and displaying real-time weather data.</p>
           </div>
         </div>
-      </aside>
+      </section>
+
+      <section id="skills" class="panel">
+        <div class="section-title futuristic-font"><h2>CORE DIRECTIVES</h2></div>
+        <div class="skills-grid">
+          <div class="badge">Java</div>
+          <div class="badge">Python</div>
+          <div class="badge">JavaScript</div>
+          <div class="badge">Spring Boot</div>
+          <div class="badge">React</div>
+          <div class="badge">Django</div>
+          <div class="badge">TensorFlow</div>
+          <div class="badge">MySQL</div>
+          <div class="badge">PostgreSQL</div>
+          <div class="badge">Docker</div>
+          <div class="badge">GCP</div>
+          <div class="badge">Git</div>
+        </div>
+      </section>
     </main>
 
     <footer>
-      Built by Himanshu — © <span id="year"></span>
+      Holographic Interface v2.5 — Built by Himanshu Soni — © <span id="year"></span>
     </footer>
   </div>
 
   <script>
-    // Set year
-    document.getElementById('year').textContent = new Date().getFullYear();
+    document.addEventListener('DOMContentLoaded', () => {
+      // Set year
+      document.getElementById('year').textContent = new Date().getFullYear();
 
-    // Canvas background: DPI-aware particles + linking lines
-    (function () {
-      const canvas = document.getElementById('bg');
-      if (!canvas) return;
-      const ctx = canvas.getContext('2d');
-      let dpr = Math.max(1, Math.min(window.devicePixelRatio || 1, 2));
-      let w = 0, h = 0;
-      let particles = [];
-      const PARTICLE_COUNT = 120;
-      const LINK_DISTANCE = 120;
+      // --- 1. DYNAMIC CURSOR ---
+      const cursor = document.querySelector('.cursor');
+      const follower = document.querySelector('.cursor-follower');
+      document.addEventListener('mousemove', e => {
+          cursor.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`;
+          follower.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`;
+      });
+      document.querySelectorAll('a, button, .job, .project').forEach(el => {
+          el.addEventListener('mouseenter', () => follower.classList.add('cursor-grow'));
+          el.addEventListener('mouseleave', () => follower.classList.remove('cursor-grow'));
+      });
 
-      function resize() {
-        dpr = Math.max(1, Math.min(window.devicePixelRatio || 1, 2));
-        w = Math.floor(window.innerWidth);
-        h = Math.floor(window.innerHeight);
-        canvas.width = Math.floor(w * dpr);
-        canvas.height = Math.floor(h * dpr);
-        canvas.style.width = w + 'px';
-        canvas.style.height = h + 'px';
-        if (ctx && ctx.setTransform) ctx.setTransform(dpr,0,0,dpr,0,0);
-      }
+      // --- 2. CANVAS PARTICLE BACKGROUND ---
+      // (Using your original, well-written canvas script with minor tweaks for the new theme)
+      const canvas = document.getElementById('bg-canvas');
+      if (canvas) {
+        const ctx = canvas.getContext('2d');
+        let dpr = window.devicePixelRatio || 1;
+        let w = window.innerWidth, h = window.innerHeight;
+        let particles = [];
+        const PARTICLE_COUNT = 80;
+        const LINK_DISTANCE = 110;
 
-      function initParticles() {
-        particles = [];
-        for (let i=0;i<PARTICLE_COUNT;i++){
-          particles.push({
-            x: Math.random()*w,
-            y: Math.random()*h,
-            r: Math.random()*2 + 0.8,
-            dx: (Math.random()-0.5) * (0.9 + Math.random()*0.7),
-            dy: (Math.random()-0.5) * (0.9 + Math.random()*0.7),
-            hue: Math.random()*360
-          });
+        function resize() {
+            dpr = window.devicePixelRatio || 1;
+            w = window.innerWidth;
+            h = window.innerHeight;
+            canvas.width = w * dpr;
+            canvas.height = h * dpr;
+            canvas.style.width = w + 'px';
+            canvas.style.height = h + 'px';
+            ctx.scale(dpr, dpr);
         }
-      }
 
-      function draw() {
-        if (!ctx) return;
-        // darker translucent background for trailing feel
-        ctx.clearRect(0,0,canvas.width,canvas.height);
-        ctx.fillStyle = 'rgba(6,6,10,0.94)';
-        ctx.fillRect(0,0,w,h);
-
-        // particles
-        particles.forEach(p=>{
-          // subtle color shift per-particle
-          const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r*6);
-          const c1 = `hsla(${(p.hue)%360},100%,60%,0.8)`;
-          const c2 = `rgba(0,0,0,0)`;
-          g.addColorStop(0, c1);
-          g.addColorStop(1, c2);
-          ctx.beginPath();
-          ctx.fillStyle = g;
-          ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
-          ctx.fill();
-
-          p.x += p.dx;
-          p.y += p.dy;
-          // bounce
-          if (p.x < 0 || p.x > w) p.dx *= -1;
-          if (p.y < 0 || p.y > h) p.dy *= -1;
-          // tiny hue shift
-          p.hue += 0.1;
-        });
-
-        // linking lines
-        ctx.lineWidth = 1;
-        for (let i=0;i<particles.length;i++){
-          for (let j=i+1;j<particles.length;j++){
-            const a = particles[i], b = particles[j];
-            const dx = a.x - b.x, dy = a.y - b.y;
-            const dist = Math.sqrt(dx*dx + dy*dy);
-            if (dist < LINK_DISTANCE){
-              const alpha = 1 - dist / LINK_DISTANCE;
-              ctx.strokeStyle = `rgba(180,0,200,${alpha*0.12})`;
-              ctx.beginPath();
-              ctx.moveTo(a.x, a.y);
-              ctx.lineTo(b.x, b.y);
-              ctx.stroke();
+        function initParticles() {
+            particles = [];
+            for (let i=0; i<PARTICLE_COUNT; i++){
+                particles.push({
+                    x: Math.random()*w,
+                    y: Math.random()*h,
+                    r: Math.random()*1.5 + 0.5,
+                    dx: (Math.random()-0.5) * 0.8,
+                    dy: (Math.random()-0.5) * 0.8,
+                });
             }
-          }
         }
 
-        raf = requestAnimationFrame(draw);
-      }
+        function draw() {
+            ctx.clearRect(0,0,w,h);
+            
+            particles.forEach(p=>{
+                ctx.beginPath();
+                ctx.fillStyle = 'rgba(0, 240, 255, 0.5)';
+                ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+                ctx.fill();
 
-      let raf = null;
-      function start(){
-        if (raf) cancelAnimationFrame(raf);
+                p.x += p.dx;
+                p.y += p.dy;
+                if (p.x < 0 || p.x > w) p.dx *= -1;
+                if (p.y < 0 || p.y > h) p.dy *= -1;
+            });
+            
+            ctx.lineWidth = 1;
+            for (let i=0; i<particles.length; i++){
+                for (let j=i+1; j<particles.length; j++){
+                    const a = particles[i], b = particles[j];
+                    const dist = Math.sqrt((a.x - b.x)**2 + (a.y - b.y)**2);
+                    if (dist < LINK_DISTANCE){
+                        const alpha = 1 - dist / LINK_DISTANCE;
+                        ctx.strokeStyle = `rgba(0, 240, 255, ${alpha*0.3})`;
+                        ctx.beginPath();
+                        ctx.moveTo(a.x, a.y);
+                        ctx.lineTo(b.x, b.y);
+                        ctx.stroke();
+                    }
+                }
+            }
+            requestAnimationFrame(draw);
+        }
+        
+        window.addEventListener('resize', resize);
         resize();
         initParticles();
-        raf = requestAnimationFrame(draw);
+        draw();
       }
 
-      window.addEventListener('resize', function(){
-        resize(); // preserve particles; they will be bounded by bounce logic
-      });
-
-      start();
-
-      // small performance: pause animation when tab not visible
-      document.addEventListener('visibilitychange', () => {
-        if (document.hidden) {
-          if (raf) cancelAnimationFrame(raf);
-          raf = null;
-        } else {
-          if (!raf) raf = requestAnimationFrame(draw);
+      // --- 3. TEXT DECODING EFFECT ---
+      const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ#%&?*@";
+      document.querySelectorAll('[data-decode-text]').forEach(el => {
+        const originalText = el.innerText;
+        let interval = null;
+        el.onmouseenter = event => {
+          let iteration = 0;
+          clearInterval(interval);
+          interval = setInterval(() => {
+            event.target.innerText = originalText.split("")
+              .map((letter, index) => {
+                if(index < iteration) return originalText[index];
+                return letters[Math.floor(Math.random() * letters.length)]
+              })
+              .join("");
+            if(iteration >= originalText.length) clearInterval(interval);
+            iteration += 1 / 3;
+          }, 30);
         }
       });
-    })();
-
-    // Smooth anchor scrolling
-    (function(){
-      document.querySelectorAll('a[href^="#"]').forEach(a=>{
-        a.addEventListener('click', function(e){
-          const id = this.getAttribute('href').slice(1);
-          const el = document.getElementById(id);
-          if (el) {
-            e.preventDefault();
-            el.scrollIntoView({behavior:'smooth', block:'start'});
+      
+      // --- 4. ON-SCROLL FADE-IN ANIMATION ---
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-visible');
           }
         });
-      });
-    })();
+      }, { threshold: 0.1 });
 
-    // Small sanity checks (console)
-    (function runChecks(){
-      try {
-        console.assert(document.getElementById('bg') instanceof HTMLCanvasElement, 'Canvas exists');
-        console.assert(typeof requestAnimationFrame === 'function', 'RAF available');
-      } catch(e){}
-    })();
+      document.querySelectorAll('.panel').forEach(panel => {
+        observer.observe(panel);
+      });
+    });
   </script>
 </body>
 </html>
