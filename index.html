@@ -1,411 +1,448 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Himanshu Soni — Holographic CV Interface</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Himanshu Soni // ARC Interface v3.0</title>
 
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;800&family=Roboto:wght@300;400&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;500;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 
-  <style>
-    :root{
-      --bg-dark:#04060c;
-      --panel-bg: rgba(10, 22, 49, 0.4);
-      --accent-cyan: #00f0ff;
-      --accent-pink: #ff3bd6;
-      --accent-purple: #9250ff;
-      --text-light: #e6f1ff;
-      --text-muted: rgba(220, 220, 255, 0.6);
-      --glass-border: rgba(0, 240, 255, 0.2);
-      --glow: 0 0 20px rgba(0, 240, 255, 0.3);
-    }
+    <style>
+        :root {
+            --bg: #010409;
+            --primary-blue: #00bfff;
+            --accent-gold: #ffc94d;
+            --text-light: #e6f1ff;
+            --text-muted: #8b949e;
+            --panel-bg: rgba(13, 27, 49, 0.3);
+            --border-color: rgba(0, 191, 255, 0.25);
+            --glow: 0 0 20px rgba(0, 191, 255, 0.2);
+        }
 
-    /* --- SETUP & BASE --- */
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{
-      margin:0;
-      font-family: "Roboto", sans-serif;
-      background:var(--bg-dark);
-      color:var(--text-light);
-      -webkit-font-smoothing:antialiased;
-      -moz-osx-font-smoothing:grayscale;
-      overflow-y:auto;
-      cursor: none;
-    }
-    .futuristic-font { font-family: "Orbitron", sans-serif; }
+        /* --- 1. BASE & SETUP --- */
+        * { box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            margin: 0;
+            background-color: var(--bg);
+            color: var(--text-light);
+            font-family: 'Exo 2', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+            cursor: none;
+        }
+        .container {
+            width: 100%;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            position: relative;
+            z-index: 2;
+        }
 
-    /* --- DYNAMIC BACKGROUND LAYERS --- */
-    .background-layers {
-        position: fixed;
-        inset: 0;
-        width: 100%;
-        height: 100%;
-        z-index: 0;
-        pointer-events: none;
-    }
-    #bg-canvas {
-        position: absolute; inset: 0; z-index: 1;
-        background: radial-gradient(ellipse at 50% 50%, rgba(4,6,12,0.1) 0%, var(--bg-dark) 80%);
-    }
-    .aurora {
-        position: absolute; inset: 0; z-index: 0;
-        background: radial-gradient(ellipse at 70% 30%, var(--accent-cyan), transparent 60%),
-                    radial-gradient(ellipse at 30% 70%, var(--accent-pink), transparent 60%);
-        opacity: 0.15;
-        animation: aurora-flow 30s infinite alternate ease-in-out;
-    }
-    @keyframes aurora-flow {
-        from { transform: rotate(0deg) scale(1.5); }
-        to { transform: rotate(360deg) scale(2.2); }
-    }
-    .scanline {
-        position: absolute; inset: 0; z-index: 2;
-        background: repeating-linear-gradient(0deg, rgba(0,0,0,0) 0px, rgba(0,0,0,0) 2px, rgba(0,240,255,0.03) 3px, rgba(0,240,255,0.03) 4px);
-    }
-    
-    /* --- CUSTOM CURSOR --- */
-    .cursor, .cursor-follower {
-        position: fixed;
-        top: 0; left: 0;
-        pointer-events: none;
-        z-index: 9999;
-        border-radius: 50%;
-        transform: translate(-50%, -50%);
-    }
-    .cursor {
-        width: 8px; height: 8px;
-        background-color: var(--accent-cyan);
-        transition: transform 0.1s ease;
-    }
-    .cursor-follower {
-        width: 30px; height: 30px;
-        border: 1px solid var(--accent-cyan);
-        opacity: 0.5;
-        transition: transform 0.3s ease-out, opacity 0.3s;
-    }
-    body:hover .cursor { opacity: 1; }
-    .cursor-grow { transform: translate(-50%, -50%) scale(2.5); opacity: 0; }
+        /* --- 2. LIVE BACKGROUND & CURSOR --- */
+        #neural-canvas {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 1;
+        }
+        .cursor-dot, .cursor-ring {
+            position: fixed;
+            top: 0; left: 0;
+            pointer-events: none;
+            z-index: 9999;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: transform 0.2s, opacity 0.2s, width 0.2s, height 0.2s;
+        }
+        .cursor-dot { width: 6px; height: 6px; background: var(--primary-blue); }
+        .cursor-ring { width: 40px; height: 40px; border: 1px solid var(--primary-blue); opacity: 0.5; }
+        body.link-hover .cursor-ring { transform: translate(-50%, -50%) scale(1.5); opacity: 0; }
 
-    /* --- LAYOUT & MAIN WRAPPER --- */
-    .wrap{
-        position:relative; z-index:1; 
-        max-width:900px; margin:0 auto; 
-        padding:2rem 1rem;
-    }
-    
-    /* --- HEADER --- */
-    header{ text-align:center; padding: 4rem 1rem 3rem; }
-    header h1{
-      margin:0; font-size:clamp(2.5rem, 6vw, 4rem); 
-      letter-spacing:1px;
-      background: linear-gradient(90deg,var(--accent-cyan),var(--accent-pink));
-      -webkit-background-clip: text; background-clip:text; color:transparent;
-      text-shadow: 0 0 18px rgba(0,240,255,0.2), 0 0 30px rgba(255,59,214,0.1);
-      opacity: 0; animation: fadeIn 1s 0.5s forwards;
-    }
-    header p{ 
-        margin:0.5rem 0 0; color:var(--text-muted); font-size:1.1rem;
-        opacity: 0; animation: fadeIn 1s 0.8s forwards;
-    }
+        /* --- 3. UI & HUD ELEMENTS --- */
+        .hud-frame {
+            position: relative;
+            padding: 2.5rem;
+            border: 1px solid var(--border-color);
+            background: var(--panel-bg);
+            backdrop-filter: blur(10px);
+            margin: 6rem 0;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+        .hud-frame::before, .hud-frame::after {
+            content: '';
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            border-color: var(--primary-blue);
+            border-style: solid;
+            transition: all 0.5s ease-out;
+            opacity: 0;
+            transform: scale(1.2);
+        }
+        .hud-frame::before { top: -10px; left: -10px; border-width: 2px 0 0 2px; }
+        .hud-frame::after { bottom: -10px; right: -10px; border-width: 0 2px 2px 0; }
+        .hud-frame.visible { opacity: 1; transform: translateY(0); }
+        .hud-frame.visible::before, .hud-frame.visible::after { opacity: 1; transform: scale(1); }
 
-    /* --- PANELS & SECTIONS (CORE UI) --- */
-    .panel{
-      background:var(--panel-bg);
-      border:1px solid var(--glass-border);
-      border-radius:16px;
-      padding:1.5rem;
-      backdrop-filter: blur(12px) saturate(120%);
-      box-shadow: 0 12px 40px rgba(0,0,0,0.7);
-      margin-bottom: 2rem;
-      /* On-scroll animation setup */
-      opacity: 0; transform: translateY(30px);
-      transition: opacity 0.6s ease-out, transform 0.6s ease-out;
-    }
-    .panel.is-visible { opacity: 1; transform: translateY(0); }
-    .panel:hover {
-        border-color: rgba(0,240,255,0.4);
-        box-shadow: 0 12px 40px rgba(0,0,0,0.7), var(--glow);
-    }
-    
-    .section-title{
-        display:flex; align-items:center; gap:0.75rem;
-        margin-bottom:1rem; color:var(--accent-cyan);
-    }
-    .section-title h2{ margin:0; font-size:1.25rem; }
-    
-    /* --- CONTENT STYLES --- */
-    .about-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 1rem; }
-    @media (max-width: 768px) { .about-grid { grid-template-columns: 1fr; } }
-    .about-grid p{ color:var(--text-muted); line-height:1.6; margin:0; }
+        .section-title {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 1.25rem;
+            color: var(--accent-gold);
+            margin: 0 0 2rem 0;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
 
-    .skills-grid{ display: flex; flex-wrap: wrap; gap: 0.5rem; }
-    .skills-grid .badge {
-      padding: 0.5rem 1rem; border-radius: 6px; font-weight: 500; font-size: 0.9rem;
-      background: rgba(0, 240, 255, 0.1); color: var(--accent-cyan);
-      border: 1px solid rgba(0, 240, 255, 0.2);
-    }
+        /* --- 4. HERO SECTION --- */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .hero-title {
+            font-family: 'Exo 2', sans-serif;
+            font-size: clamp(3rem, 8vw, 6rem);
+            font-weight: 700;
+            color: var(--text-light);
+            margin: 0;
+            line-height: 1;
+            letter-spacing: -2px;
+            text-shadow: 0 0 30px rgba(0, 191, 255, 0.3);
+        }
+        .hero-subtitle {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 1.5rem;
+            color: var(--primary-blue);
+            margin: 1rem 0 2rem 0;
+            font-weight: 300;
+        }
+        .btn {
+            display: inline-block;
+            font-family: 'Share Tech Mono', monospace;
+            background: transparent;
+            color: var(--primary-blue);
+            border: 1px solid var(--primary-blue);
+            padding: 0.8rem 2rem;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        .btn:hover { background: var(--primary-blue); color: var(--bg); box-shadow: var(--glow); }
 
-    .timeline{ display:flex; flex-direction:column; gap:1rem }
-    .job{ padding:1rem; border-radius:10px; background: rgba(255,255,255,0.03); }
-    .job h3{ margin:0; font-size:1rem; color: var(--text-light); }
-    .job .meta{ color:var(--text-muted); font-size:0.9rem; margin-top:0.25rem; font-weight: 300; }
-    .job ul{ margin:0.75rem 0 0 1rem; color:var(--text-muted); line-height:1.5 }
+        /* --- 5. CONTENT STYLES --- */
+        .about-content p {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            max-width: 800px;
+            font-weight: 300;
+            color: var(--text-muted);
+        }
+        .about-content strong { color: var(--text-light); font-weight: 500; }
+        
+        .experience-timeline { display: flex; flex-direction: column; gap: 2rem; }
+        .job h3 { font-size: 1.25rem; color: var(--text-light); margin: 0; }
+        .job .meta { font-family: 'Share Tech Mono', monospace; color: var(--accent-gold); margin: 0.5rem 0; }
+        .job ul { padding-left: 1.25rem; color: var(--text-muted); }
 
-    .projects-grid{ display:grid; grid-template-columns:1fr 1fr; gap:1rem }
-    @media (max-width: 640px) { .projects-grid{ grid-template-columns:1fr } }
-    .project{ padding:1rem; border-radius:10px; background:rgba(255,255,255,0.03); }
-    .project .stack{ margin-top:0.5rem; display:flex; gap:0.5rem; flex-wrap:wrap }
-    .project .stack .s{ font-size:0.75rem; padding:0.25rem 0.5rem; border-radius:4px; background:rgba(255,255,255,0.05); color:var(--text-muted) }
+        .projects-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; }
+        .project-card {
+            background: rgba(0, 191, 255, 0.05);
+            border: 1px solid var(--border-color);
+            padding: 1.5rem;
+            transition: all 0.3s;
+        }
+        .project-card:hover { transform: translateY(-5px); background: rgba(0, 191, 255, 0.1); border-color: var(--primary-blue); }
+        .project-card h3 { font-size: 1.2rem; color: var(--text-light); margin: 0 0 0.5rem 0; }
+        .project-card p { color: var(--text-muted); font-size: 0.9rem; margin: 0 0 1rem 0; }
+        .project-card .tech-stack { font-family: 'Share Tech Mono', monospace; font-size: 0.8rem; color: var(--primary-blue); }
 
-    .contact-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
-    .contact-item { text-align: center; }
-    .contact-item a {
-        color: var(--accent-cyan); text-decoration: none; font-weight: 500;
-        display: block; padding: 1rem; background: rgba(255,255,255,0.03); border-radius: 10px;
-        transition: background 0.3s, color 0.3s;
-    }
-    .contact-item a:hover { background: var(--accent-cyan); color: var(--bg-dark); }
-    
-    footer{ text-align:center; padding: 2rem 0 4rem; color:rgba(255,255,255,0.4); }
+        #skills-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            list-style: none;
+            padding: 0;
+        }
+        #skills-list li {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 1rem;
+            color: var(--text-muted);
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
 
-    /* --- ANIMATIONS --- */
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-  </style>
+        /* --- 6. FOOTER & ANIMATIONS --- */
+        .footer { text-align: center; padding: 4rem 0 2rem; color: var(--text-muted); }
+        .footer-links a { color: var(--text-muted); text-decoration: none; margin: 0 1rem; transition: color 0.3s; }
+        .footer-links a:hover { color: var(--text-light); }
+        .line-reveal {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+        .line-reveal.visible { opacity: 1; transform: translateY(0); }
+        
+        @media(max-width: 768px) {
+            .projects-grid { grid-template-columns: 1fr; }
+            .hud-frame { padding: 1.5rem; }
+        }
+    </style>
 </head>
 <body>
-  <div class="background-layers">
-    <canvas id="bg-canvas" aria-hidden="true"></canvas>
-    <div class="aurora"></div>
-    <div class="scanline"></div>
-  </div>
-  <div class="cursor"></div>
-  <div class="cursor-follower"></div>
 
-  <div class="wrap">
-    <header>
-      <h1 class="futuristic-font" data-decode-text="Himanshu Soni">Himanshu Soni</h1>
-      <p>M.Tech CSE @ VIT — Full-Stack Architect & AI Engineer • Vellore, India</p>
-    </header>
+    <canvas id="neural-canvas"></canvas>
+    <div class="cursor-dot"></div>
+    <div class="cursor-ring"></div>
 
-    <main role="main">
-      <section id="profile" class="panel about">
-        <div class="about-grid">
-            <div>
-                <div class="section-title futuristic-font"><h2>STATUS REPORT</h2></div>
-                <p>A highly motivated M.Tech candidate with a passion for architecting intelligent, scalable systems. My work focuses on the intersection of robust backend engineering and cutting-edge artificial intelligence. I build high-performance applications, experiment with predictive models, and design user-centric digital experiences.</p>
-            </div>
-            <div>
-                <div class="section-title futuristic-font"><h2>CONTACT</h2></div>
-                <div class="contact-grid">
-                    <div class="contact-item"><a href="mailto:er.himanshusoni.cse@gmail.com">Email</a></div>
-                    <div class="contact-item"><a href="tel:+916387446090">Phone</a></div>
-                    <div class="contact-item"><a href="https://github.com/er1himanshu" target="_blank">GitHub</a></div>
-                    <div class="contact-item"><a href="https://er1himanshu.github.io/Resume" target="_blank">Résumé</a></div>
+    <div class="container">
+        <main>
+            <section class="hero">
+                <h1 class="hero-title line-reveal">HIMANSHU SONI</h1>
+                <h2 class="hero-subtitle line-reveal" style="transition-delay: 0.1s;">AI Architect & Full-Stack Engineer</h2>
+                <p class="line-reveal" style="transition-delay: 0.2s; max-width: 600px; margin: 2rem auto;">
+                    I design and build intelligent, high-performance digital systems that bridge the gap between complex data and human experience.
+                </p>
+                <div class="line-reveal" style="transition-delay: 0.3s;">
+                    <a href="#contact" class="btn">Initiate Contact</a>
                 </div>
+            </section>
+
+            <section id="about" class="hud-frame line-reveal">
+                <h2 class="section-title">[ STATUS REPORT ]</h2>
+                <div class="about-content">
+                    <p>As a Master's candidate in Computer Science at VIT, my core mission is to engineer sophisticated software solutions. I specialize in crafting robust backend architectures with <strong>Java/Spring Boot</strong> and developing intelligent systems using <strong>Python and AI/ML frameworks</strong>. My approach combines rigorous engineering principles with a creative drive to build software that is not only powerful but also intuitive and elegant.</p>
+                </div>
+            </section>
+
+            <section id="experience" class="hud-frame line-reveal">
+                <h2 class="section-title">[ CAREER LOG ]</h2>
+                <div class="experience-timeline">
+                    <div class="job">
+                        <h3>Java Full Stack Developer</h3>
+                        <p class="meta">Zidio Development // APR 2024 – JUN 2024</p>
+                        <ul>
+                            <li>Engineered scalable REST APIs using Spring Boot for core application services.</li>
+                            <li>Designed and optimized MySQL schemas for high-performance data retrieval.</li>
+                        </ul>
+                    </div>
+                    <div class="job">
+                        <h3>Big Data Intern</h3>
+                        <p class="meta">Physics Wallah Pvt. Ltd. // SEP 2024 – DEC 2024</p>
+                        <ul>
+                            <li>Processed and analyzed terabyte-scale datasets using Hadoop and MapReduce.</li>
+                            <li>Developed complex data aggregation workflows using Apache Hive.</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <section id="skills" class="hud-frame line-reveal">
+                <h2 class="section-title">[ CORE COMPETENCIES ]</h2>
+                <ul id="skills-list">
+                    <li>Java & Spring Boot</li>
+                    <li>Python (AI/ML & Django)</li>
+                    <li>JavaScript & React</li>
+                    <li>SQL & NoSQL Databases</li>
+                    <li>Docker & Kubernetes</li>
+                    <li>Cloud Platforms (GCP, Azure)</li>
+                    <li>REST & GraphQL API Design</li>
+                    <li>Agile Methodologies</li>
+                </ul>
+            </section>
+
+            <section id="projects" class="hud-frame line-reveal">
+                <h2 class="section-title">[ PROJECT ARCHIVES ]</h2>
+                <div class="projects-grid">
+                    <div class="project-card">
+                        <h3>Emotion-Based Music AI</h3>
+                        <p>A web application using a custom CNN model to perform real-time facial emotion recognition, curating Spotify playlists to match the user's mood.</p>
+                        <p class="tech-stack">TensorFlow.js • React • Node.js</p>
+                    </div>
+                    <div class="project-card">
+                        <h3>E-Commerce Platform</h3>
+                        <p>A full-stack online retail application featuring secure user authentication, product management, and payment processing via Stripe API.</p>
+                        <p class="tech-stack">Django • PostgreSQL • React</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="contact" class="hero">
+                <h2 class="hero-title line-reveal">Let's Connect.</h2>
+                <p class="hero-subtitle line-reveal" style="transition-delay: 0.1s;">I'm actively seeking new opportunities and collaborations.</p>
+                <div class="line-reveal" style="transition-delay: 0.2s;">
+                    <a href="mailto:er.himanshusoni.cse@gmail.com" class="btn">er.himanshusoni.cse@gmail.com</a>
+                </div>
+            </section>
+        </main>
+
+        <footer class="footer line-reveal">
+            <div class="footer-links">
+                <a href="https://github.com/er1himanshu" target="_blank">GitHub</a>
+                <a href="https://linkedin.com/in/himanshu-soni-9a2a3622b" target="_blank">LinkedIn</a>
+                <a href="https://er1himanshu.github.io/Resume" target="_blank">Résumé</a>
             </div>
-        </div>
-      </section>
+            <p>Himanshu Soni // ARC Interface © 2025</p>
+        </footer>
+    </div>
 
-      <section id="experience" class="panel">
-        <div class="section-title futuristic-font"><h2>CAREER TIMELINE</h2></div>
-        <div class="timeline">
-          <div class="job">
-            <h3 class="futuristic-font">Java Full Stack Developer — Zidio Development</h3>
-            <div class="meta">REMOTE • Apr 2024 – Jun 2024</div>
-            <ul>
-              <li>Engineered RESTful APIs using Spring Boot for core application logic including authentication and data management.</li>
-              <li>Designed and optimized MySQL database schemas for performance and scalability.</li>
-              <li>Integrated backend services with a dynamic React.js frontend interface.</li>
-            </ul>
-          </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
 
-          <div class="job">
-            <h3 class="futuristic-font">Big Data Intern — Physics Wallah Pvt. Ltd.</h3>
-            <div class="meta">REMOTE • Sep 2024 – Dec 2024</div>
-            <ul>
-              <li>Processed and analyzed massive datasets utilizing the Hadoop ecosystem (HDFS, MapReduce).</li>
-              <li>Executed complex data queries and built analytics dashboards using Hive.</li>
-            </ul>
-          </div>
-        </div>
-      </section>
+            // --- 1. NEURAL CIRCUIT BACKGROUND ---
+            const canvas = document.getElementById('neural-canvas');
+            const ctx = canvas.getContext('2d');
+            let mouse = { x: null, y: null, radius: 150 };
+            let particles = [];
+            const PARTICLE_COUNT = 200;
+            const GRID_GAP = 40;
 
-      <section id="projects" class="panel">
-        <div class="section-title futuristic-font"><h2>PROJECT ARCHIVES</h2></div>
-        <div class="projects-grid">
-          <div class="project">
-            <strong class="futuristic-font">E-Commerce Platform</strong>
-            <div class="stack"><span class="s">Python</span><span class="s">Django</span><span class="s">SQL</span></div>
-            <p style="color:var(--text-muted);margin:8px 0 0">Full-stack store with auth, cart, and payment gateway integration.</p>
-          </div>
-          <div class="project">
-            <strong class="futuristic-font">Book Review System</strong>
-            <div class="stack"><span class="s">Django</span><span class="s">React</span><span class="s">PostgreSQL</span></div>
-            <p style="color:var(--text-muted);margin:8px 0 0">Decoupled platform for ratings and reviews with a responsive UI.</p>
-          </div>
-          <div class="project">
-            <strong class="futuristic-font">Emotion-Based Music AI</strong>
-            <div class="stack"><span class="s">Python</span><span class="s">TensorFlow</span><span class="s">OpenCV</span></div>
-            <p style="color:var(--text-muted);margin:8px 0 0">ML model recommends songs based on real-time facial emotion.</p>
-          </div>
-          <div class="project">
-            <strong class="futuristic-font">Weather Forecast CLI</strong>
-            <div class="stack"><span class="s">Java</span><span class="s">API</span></div>
-            <p style="color:var(--text-muted);margin:8px 0 0">Console application fetching and displaying real-time weather data.</p>
-          </div>
-        </div>
-      </section>
-
-      <section id="skills" class="panel">
-        <div class="section-title futuristic-font"><h2>CORE DIRECTIVES</h2></div>
-        <div class="skills-grid">
-          <div class="badge">Java</div>
-          <div class="badge">Python</div>
-          <div class="badge">JavaScript</div>
-          <div class="badge">Spring Boot</div>
-          <div class="badge">React</div>
-          <div class="badge">Django</div>
-          <div class="badge">TensorFlow</div>
-          <div class="badge">MySQL</div>
-          <div class="badge">PostgreSQL</div>
-          <div class="badge">Docker</div>
-          <div class="badge">GCP</div>
-          <div class="badge">Git</div>
-        </div>
-      </section>
-    </main>
-
-    <footer>
-      Holographic Interface v2.5 — Built by Himanshu Soni — © <span id="year"></span>
-    </footer>
-  </div>
-
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      // Set year
-      document.getElementById('year').textContent = new Date().getFullYear();
-
-      // --- 1. DYNAMIC CURSOR ---
-      const cursor = document.querySelector('.cursor');
-      const follower = document.querySelector('.cursor-follower');
-      document.addEventListener('mousemove', e => {
-          cursor.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`;
-          follower.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`;
-      });
-      document.querySelectorAll('a, button, .job, .project').forEach(el => {
-          el.addEventListener('mouseenter', () => follower.classList.add('cursor-grow'));
-          el.addEventListener('mouseleave', () => follower.classList.remove('cursor-grow'));
-      });
-
-      // --- 2. CANVAS PARTICLE BACKGROUND ---
-      // (Using your original, well-written canvas script with minor tweaks for the new theme)
-      const canvas = document.getElementById('bg-canvas');
-      if (canvas) {
-        const ctx = canvas.getContext('2d');
-        let dpr = window.devicePixelRatio || 1;
-        let w = window.innerWidth, h = window.innerHeight;
-        let particles = [];
-        const PARTICLE_COUNT = 80;
-        const LINK_DISTANCE = 110;
-
-        function resize() {
-            dpr = window.devicePixelRatio || 1;
-            w = window.innerWidth;
-            h = window.innerHeight;
-            canvas.width = w * dpr;
-            canvas.height = h * dpr;
-            canvas.style.width = w + 'px';
-            canvas.style.height = h + 'px';
-            ctx.scale(dpr, dpr);
-        }
-
-        function initParticles() {
-            particles = [];
-            for (let i=0; i<PARTICLE_COUNT; i++){
-                particles.push({
-                    x: Math.random()*w,
-                    y: Math.random()*h,
-                    r: Math.random()*1.5 + 0.5,
-                    dx: (Math.random()-0.5) * 0.8,
-                    dy: (Math.random()-0.5) * 0.8,
-                });
+            function resizeCanvas() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
             }
-        }
-
-        function draw() {
-            ctx.clearRect(0,0,w,h);
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
             
-            particles.forEach(p=>{
-                ctx.beginPath();
-                ctx.fillStyle = 'rgba(0, 240, 255, 0.5)';
-                ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
-                ctx.fill();
-
-                p.x += p.dx;
-                p.y += p.dy;
-                if (p.x < 0 || p.x > w) p.dx *= -1;
-                if (p.y < 0 || p.y > h) p.dy *= -1;
+            window.addEventListener('mousemove', (e) => {
+                mouse.x = e.clientX;
+                mouse.y = e.clientY;
             });
-            
-            ctx.lineWidth = 1;
-            for (let i=0; i<particles.length; i++){
-                for (let j=i+1; j<particles.length; j++){
-                    const a = particles[i], b = particles[j];
-                    const dist = Math.sqrt((a.x - b.x)**2 + (a.y - b.y)**2);
-                    if (dist < LINK_DISTANCE){
-                        const alpha = 1 - dist / LINK_DISTANCE;
-                        ctx.strokeStyle = `rgba(0, 240, 255, ${alpha*0.3})`;
-                        ctx.beginPath();
-                        ctx.moveTo(a.x, a.y);
-                        ctx.lineTo(b.x, b.y);
-                        ctx.stroke();
+            window.addEventListener('mouseleave', () => {
+                mouse.x = null;
+                mouse.y = null;
+            });
+
+            class Particle {
+                constructor() {
+                    this.x = Math.random() * canvas.width;
+                    this.y = Math.random() * canvas.height;
+                    this.size = Math.random() * 1.2 + 0.8;
+                    this.baseSpeed = 0.5;
+                    this.directionX = Math.round(Math.random()) * 2 - 1;
+                    this.directionY = 0;
+                    if (Math.random() > 0.5) { // 50% chance to move vertically
+                        this.directionX = 0;
+                        this.directionY = Math.round(Math.random()) * 2 - 1;
                     }
                 }
+                update() {
+                    // Change direction at grid intersections
+                    if (this.x % GRID_GAP < 1 && this.y % GRID_GAP < 1) {
+                         if (Math.random() > 0.5) {
+                            this.directionX = Math.round(Math.random()) * 2 - 1;
+                            this.directionY = 0;
+                         } else {
+                            this.directionX = 0;
+                            this.directionY = Math.round(Math.random()) * 2 - 1;
+                         }
+                    }
+
+                    // Mouse repulsion
+                    let dx = this.x - mouse.x;
+                    let dy = this.y - mouse.y;
+                    let distance = Math.sqrt(dx*dx + dy*dy);
+                    if (distance < mouse.radius) {
+                        let force = (mouse.radius - distance) / mouse.radius;
+                        this.x += dx/distance * force * 2;
+                        this.y += dy/distance * force * 2;
+                    } else {
+                        this.x += this.directionX * this.baseSpeed;
+                        this.y += this.directionY * this.baseSpeed;
+                    }
+                    
+                    // Boundary check
+                    if (this.x > canvas.width) this.x = 0;
+                    if (this.x < 0) this.x = canvas.width;
+                    if (this.y > canvas.height) this.y = 0;
+                    if (this.y < 0) this.y = canvas.height;
+                }
+                draw() {
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(0, 191, 255, 0.6)`;
+                    ctx.fill();
+                }
             }
-            requestAnimationFrame(draw);
-        }
-        
-        window.addEventListener('resize', resize);
-        resize();
-        initParticles();
-        draw();
-      }
 
-      // --- 3. TEXT DECODING EFFECT ---
-      const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ#%&?*@";
-      document.querySelectorAll('[data-decode-text]').forEach(el => {
-        const originalText = el.innerText;
-        let interval = null;
-        el.onmouseenter = event => {
-          let iteration = 0;
-          clearInterval(interval);
-          interval = setInterval(() => {
-            event.target.innerText = originalText.split("")
-              .map((letter, index) => {
-                if(index < iteration) return originalText[index];
-                return letters[Math.floor(Math.random() * letters.length)]
-              })
-              .join("");
-            if(iteration >= originalText.length) clearInterval(interval);
-            iteration += 1 / 3;
-          }, 30);
-        }
-      });
-      
-      // --- 4. ON-SCROLL FADE-IN ANIMATION ---
-      const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('is-visible');
-          }
+            function initParticles() {
+                for (let i = 0; i < PARTICLE_COUNT; i++) {
+                    particles.push(new Particle());
+                }
+            }
+            initParticles();
+
+            // Heartbeat pulse effect
+            let pulse = 0;
+            let pulseDirection = 1;
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                pulse += 0.01 * pulseDirection;
+                if (pulse > 1 || pulse < 0) pulseDirection *= -1;
+
+                particles.forEach(p => { p.update(); p.draw(); });
+
+                // Draw connecting lines and pulse
+                for (let i = 0; i < particles.length; i++) {
+                    for (let j = i; j < particles.length; j++) {
+                        let dist = Math.sqrt(
+                            Math.pow(particles[i].x - particles[j].x, 2) +
+                            Math.pow(particles[i].y - particles[j].y, 2)
+                        );
+                        if (dist < GRID_GAP * 1.5) {
+                            let opacity = 1 - (dist / (GRID_GAP * 1.5));
+                            ctx.strokeStyle = `rgba(0, 191, 255, ${opacity * 0.2})`;
+                            ctx.lineWidth = 1;
+                            ctx.beginPath();
+                            ctx.moveTo(particles[i].x, particles[i].y);
+                            ctx.lineTo(particles[j].x, particles[j].y);
+                            ctx.stroke();
+                        }
+                    }
+                }
+                
+                // Add center pulse
+                let gradient = ctx.createRadialGradient(canvas.width/2, canvas.height/2, 0, canvas.width/2, canvas.height/2, pulse * 300);
+                gradient.addColorStop(0, `rgba(0, 191, 255, ${0.1 - pulse * 0.1})`);
+                gradient.addColorStop(1, 'transparent');
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0,0,canvas.width, canvas.height);
+
+                requestAnimationFrame(animate);
+            }
+            animate();
+
+            // --- 2. ON-SCROLL REVEAL ANIMATIONS ---
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            document.querySelectorAll('.line-reveal, .hud-frame').forEach(el => observer.observe(el));
+            
+            // --- 3. CUSTOM CURSOR & HOVER EFFECTS ---
+            const dot = document.querySelector('.cursor-dot');
+            const ring = document.querySelector('.cursor-ring');
+            window.addEventListener('mousemove', (e) => {
+                dot.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`;
+                ring.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`;
+            });
+            
+            document.querySelectorAll('a, .btn').forEach(el => {
+                el.addEventListener('mouseenter', () => document.body.classList.add('link-hover'));
+                el.addEventListener('mouseleave', () => document.body.classList.remove('link-hover'));
+            });
         });
-      }, { threshold: 0.1 });
-
-      document.querySelectorAll('.panel').forEach(panel => {
-        observer.observe(panel);
-      });
-    });
-  </script>
+    </script>
 </body>
 </html>
