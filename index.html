@@ -348,7 +348,11 @@
                     let dx = this.x - mouse.x;
                     let dy = this.y - mouse.y;
                     let distance = Math.sqrt(dx*dx + dy*dy);
-                    if (distance < mouse.radius) {
+                    
+                    // --- FIX #2 APPLIED HERE ---
+                    // This checks if the distance is greater than 0 to prevent a division-by-zero error,
+                    // which could also stop the animation.
+                    if (distance < mouse.radius && distance > 0) {
                         let force = (mouse.radius - distance) / mouse.radius;
                         this.x += dx/distance * force * 2;
                         this.y += dy/distance * force * 2;
@@ -382,38 +386,49 @@
             let pulse = 0;
             let pulseDirection = 1;
             function animate() {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                try {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-                pulse += 0.01 * pulseDirection;
-                if (pulse > 1 || pulse < 0) pulseDirection *= -1;
+                    pulse += 0.01 * pulseDirection;
+                    if (pulse > 1 || pulse < 0) pulseDirection *= -1;
 
-                particles.forEach(p => { p.update(); p.draw(); });
+                    particles.forEach(p => { p.update(); p.draw(); });
 
-                // Draw connecting lines and pulse
-                for (let i = 0; i < particles.length; i++) {
-                    for (let j = i; j < particles.length; j++) {
-                        let dist = Math.sqrt(
-                            Math.pow(particles[i].x - particles[j].x, 2) +
-                            Math.pow(particles[i].y - particles[j].y, 2)
-                        );
-                        if (dist < GRID_GAP * 1.5) {
-                            let opacity = 1 - (dist / (GRID_GAP * 1.5));
-                            ctx.strokeStyle = `rgba(0, 191, 255, ${opacity * 0.2})`;
-                            ctx.lineWidth = 1;
-                            ctx.beginPath();
-                            ctx.moveTo(particles[i].x, particles[i].y);
-                            ctx.lineTo(particles[j].x, particles[j].y);
-                            ctx.stroke();
+                    // Draw connecting lines and pulse
+                    for (let i = 0; i < particles.length; i++) {
+                        for (let j = i; j < particles.length; j++) {
+                            let dist = Math.sqrt(
+                                Math.pow(particles[i].x - particles[j].x, 2) +
+                                Math.pow(particles[i].y - particles[j].y, 2)
+                            );
+                            if (dist < GRID_GAP * 1.5) {
+                                let opacity = 1 - (dist / (GRID_GAP * 1.5));
+                                ctx.strokeStyle = `rgba(0, 191, 255, ${opacity * 0.2})`;
+                                ctx.lineWidth = 1;
+                                ctx.beginPath();
+                                ctx.moveTo(particles[i].x, particles[i].y);
+                                ctx.lineTo(particles[j].x, particles[j].y);
+                                ctx.stroke();
+                            }
                         }
                     }
+                    
+                    // Add center pulse
+                    let gradient = ctx.createRadialGradient(canvas.width/2, canvas.height/2, 0, canvas.width/2, canvas.height/2, pulse * 300);
+                    
+                    // --- FIX #1 APPLIED HERE ---
+                    // This ensures the alpha value never becomes negative, preventing the animation from crashing.
+                    const alpha = Math.max(0, 0.1 - pulse * 0.1);
+                    gradient.addColorStop(0, `rgba(0, 191, 255, ${alpha})`);
+
+                    gradient.addColorStop(1, 'transparent');
+                    ctx.fillStyle = gradient;
+                    ctx.fillRect(0,0,canvas.width, canvas.height);
+
+                } catch (e) {
+                    // Log any unexpected errors to the console instead of stopping the animation
+                    console.error("Animation failed:", e);
                 }
-                
-                // Add center pulse
-                let gradient = ctx.createRadialGradient(canvas.width/2, canvas.height/2, 0, canvas.width/2, canvas.height/2, pulse * 300);
-                gradient.addColorStop(0, `rgba(0, 191, 255, ${0.1 - pulse * 0.1})`);
-                gradient.addColorStop(1, 'transparent');
-                ctx.fillStyle = gradient;
-                ctx.fillRect(0,0,canvas.width, canvas.height);
 
                 requestAnimationFrame(animate);
             }
